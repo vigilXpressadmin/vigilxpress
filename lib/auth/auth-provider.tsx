@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/toast';
@@ -8,6 +8,8 @@ import type { UserProfileData } from '@/components/layout/user-profile-menu';
 import type { UserRole } from '@/components/layout/user-menu-config';
 import { invalidateRoleDashboardData } from '@/lib/dashboard/use-role-dashboard-data';
 import type { Session } from '@supabase/supabase-js';
+
+type ActiveSupabaseClient = NonNullable<ReturnType<typeof createClient>>;
 
 interface AuthContextValue {
   user: UserProfileData | null;
@@ -20,7 +22,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 async function resolveUserProfile(
-  supabase: ReturnType<typeof createClient>,
+  supabase: ActiveSupabaseClient,
   authUser: {
     id: string;
     email?: string;
@@ -75,15 +77,23 @@ async function resolveUserProfile(
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // Server render and initial client hydration start with identical state (loading: true)
+  // to avoid hydration mismatch and prevent flashes of logged-out UI.
   const [user, setUser] = useState<UserProfileData | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { showToast } = useToast();
 
-  const supabase = useMemo(() => createClient(), []);
-
   const refreshUser = useCallback(async () => {
+    const supabase = createClient();
+    if (!supabase) {
+      setSession(null);
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data: { session: currentSession }, error } = await supabase.auth.getSession();
       if (error || !currentSession?.user) {
@@ -103,11 +113,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [supabase]);
+  }, []);
 
-  // Initial session hydration and listener setup
+  // Initial session hydration and listener setup executed exclusively on the client
   useEffect(() => {
     let isMounted = true;
+    const supabase = createClient();
+
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
 
     // 1. Initial hydration from persistent session
     supabase.auth.getSession().then(async ({ data: { session: initSession }, error }) => {
@@ -139,7 +155,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(null);
         setUser(null);
         setLoading(false);
-        invalidateRoleDashboardData();
         return;
       }
 
@@ -155,9 +170,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, []);
 
   const signOut = useCallback(async (): Promise<boolean> => {
+    const supabase = createClient();
+    if (!supabase) {
+      setUser(null);
+      setSession(null);
+      return true;
+    }
+
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
@@ -177,7 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       showToast(msg, 'error');
       return false;
     }
-  }, [supabase, router, showToast]);
+  }, [router, showToast]);
 
   return (
     <AuthContext.Provider value={{ user, session, loading, signOut, refreshUser }}>

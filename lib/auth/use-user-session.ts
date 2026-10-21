@@ -21,7 +21,7 @@ function notifyListeners(user: UserProfileData | null) {
 /**
  * Extracts normalized UserProfileData from Supabase User and database profile
  */
-async function buildUserProfile(supabase: ReturnType<typeof createClient>, authUser: {
+async function buildUserProfile(supabase: NonNullable<ReturnType<typeof createClient>>, authUser: {
   id: string;
   email?: string;
   user_metadata?: Record<string, unknown>;
@@ -116,6 +116,11 @@ export function useUserSession(): UseUserSessionReturn {
   const refreshUser = useCallback(async () => {
     try {
       const supabase = createClient();
+      if (!supabase) {
+        hasInitialLoaded = true;
+        notifyListeners(null);
+        return;
+      }
       // 1. Immediately check locally persisted session (instant zero-delay rehydration on refresh)
       const {
         data: { session },
@@ -140,6 +145,10 @@ export function useUserSession(): UseUserSessionReturn {
   // Initialize and subscribe
   useEffect(() => {
     const supabase = createClient();
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
 
     if (!hasInitialLoaded) {
       refreshUser();
@@ -170,6 +179,7 @@ export function useUserSession(): UseUserSessionReturn {
   const signOut = useCallback(async (): Promise<boolean> => {
     try {
       const supabase = createClient();
+      if (!supabase) return true;
       const { error } = await supabase.auth.signOut();
       if (error) {
         showToast(error.message || 'Error signing out', 'error');

@@ -64,7 +64,41 @@ See `.env.example`. Do not commit real secrets.
 
 ## Deployment
 
-- Deploy Next.js to Vercel or another Node-compatible platform.
-- Deploy Edge Functions with Supabase CLI.
-- Set production Paystack keys and webhook secret handling according to current Paystack docs.
-- Run `supabase db push` for migrations after review.
+### 1. Vercel Environment Variables Checklist
+
+Before building or deploying on Vercel, navigate to **Project Settings > Environment Variables** and add the following variables:
+
+| Variable Name | Required | Target Environments | Description |
+| :--- | :---: | :--- | :--- |
+| `NEXT_PUBLIC_SUPABASE_URL` | **Yes** | Production, Preview, Development | Your Supabase project URL (`https://xyz.supabase.co`) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or `NEXT_PUBLIC_SUPABASE_ANON_KEY`) | **Yes** | Production, Preview, Development | Your Supabase public anonymous / publishable key |
+| `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` | **Yes** | Production, Preview, Development | Paystack public key (`pk_live_...` or `pk_test_...`) |
+| `NEXT_PUBLIC_SITE_URL` | **Yes** | Production, Preview, Development | Canonical domain (e.g. `https://vigilxpress.com` or Vercel URL) |
+| `PAYSTACK_SECRET_KEY` | **Yes** | Production, Preview, Development | Paystack secret key (`sk_live_...` or `sk_test_...`) |
+
+> **IMPORTANT:** Variables prefixed with `NEXT_PUBLIC_*` are baked into the client bundle at build time. Whenever you add or edit a `NEXT_PUBLIC_*` variable in Vercel, you must trigger a **Redeploy** (with "Use existing Build Cache" unchecked) for the new values to take effect.
+
+### 2. Supabase Auth Configuration
+
+1. In your **Supabase Dashboard**, navigate to **Authentication > URL Configuration**.
+2. Set **Site URL** to your production domain (e.g. `https://vigilxpress.com`).
+3. Under **Redirect URLs**, add your Vercel domains:
+   - `https://*.vercel.app/**` (covers all preview deployments)
+   - `https://your-production-domain.com/**`
+   - `http://localhost:3000/**` (for local development)
+4. Under **Authentication > Providers**, ensure **Email** is enabled, and optionally configure **Google OAuth**.
+
+### 3. Edge Functions & Migrations
+
+- Deploy Edge Functions with the Supabase CLI:
+  ```bash
+  supabase functions deploy
+  ```
+- Set Edge Function secrets:
+  ```bash
+  supabase secrets set PAYSTACK_SECRET_KEY=sk_... SUPABASE_SERVICE_ROLE_KEY=ey...
+  ```
+- Run database migrations:
+  ```bash
+  supabase db push
+  ```

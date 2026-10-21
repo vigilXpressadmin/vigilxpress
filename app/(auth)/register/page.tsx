@@ -9,7 +9,6 @@ import { AuthCard, type AuthSubmitData } from '@/components/auth/auth-card';
 function RegisterForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const supabase = createClient();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -17,6 +16,11 @@ function RegisterForm() {
   const next = params.get('next') || '';
 
   async function handleRegister({ email, password, fullName }: AuthSubmitData) {
+    const supabase = createClient();
+    if (!supabase) {
+      showToast('Registration service is not configured.', 'error');
+      return;
+    }
     setLoading(true);
     try {
       const { error } = await supabase.auth.signUp({
@@ -47,6 +51,11 @@ function RegisterForm() {
   }
 
   async function handleGoogleSignIn() {
+    const supabase = createClient();
+    if (!supabase) {
+      showToast('Registration service is not configured.', 'error');
+      return;
+    }
     setGoogleLoading(true);
     try {
       const callbackUrl = `${window.location.origin}/auth/callback${
