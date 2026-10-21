@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, ShoppingBag } from "lucide-react";
-import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart/use-cart";
 import {
@@ -26,28 +25,26 @@ function DescriptionPanel({ items, onLinkClick }: { items: SubmenuItem[]; onLink
         const Icon = item.icon;
         return (
           <li key={item.title}>
-            <NavigationMenuPrimitive.Link asChild>
-              <Link
-                href={item.href}
-                onClick={onLinkClick}
-                className="group flex items-start gap-3 rounded-xl p-3 text-[14px] no-underline outline-none nav-interactive ring-1 ring-transparent hover:ring-black/10 dark:hover:ring-white/10 hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus-visible:ring-brand-500 focus-visible:ring-2"
-              >
-                <span className="flex-none mt-0.5 w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 grid place-items-center">
-                  <Icon
-                    size={16}
-                    className="text-brand-500"
-                  />
+            <Link
+              href={item.href}
+              onClick={onLinkClick}
+              className="group flex items-start gap-3 rounded-xl p-3 text-[14px] no-underline outline-none nav-interactive ring-1 ring-transparent hover:ring-black/10 dark:hover:ring-white/10 hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus-visible:ring-brand-500 focus-visible:ring-2"
+            >
+              <span className="flex-none mt-0.5 w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 grid place-items-center">
+                <Icon
+                  size={16}
+                  className="text-brand-500"
+                />
+              </span>
+              <span className="flex flex-col gap-0.5">
+                <span className="font-semibold text-ink dark:text-white leading-tight">
+                  {item.title}
                 </span>
-                <span className="flex flex-col gap-0.5">
-                  <span className="font-semibold text-ink dark:text-white leading-tight">
-                    {item.title}
-                  </span>
-                  <span className="text-[12px] text-mut dark:text-white/50 leading-snug">
-                    {item.description}
-                  </span>
+                <span className="text-[12px] text-mut dark:text-white/50 leading-snug">
+                  {item.description}
                 </span>
-              </Link>
-            </NavigationMenuPrimitive.Link>
+              </span>
+            </Link>
           </li>
         );
       })}
@@ -63,19 +60,17 @@ function IconPanel({ items, onLinkClick }: { items: SubmenuItem[]; onLinkClick?:
         const Icon = item.icon;
         return (
           <li key={item.title}>
-            <NavigationMenuPrimitive.Link asChild>
-              <Link
-                href={item.href}
-                onClick={onLinkClick}
-                className="flex items-center gap-2.5 rounded-xl p-3 text-[14px] font-medium no-underline outline-none nav-interactive ring-1 ring-transparent hover:ring-black/10 dark:hover:ring-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-ink dark:text-white/80 hover:text-ink dark:hover:text-white transition-colors focus-visible:ring-brand-500 focus-visible:ring-2"
-              >
-                <Icon
-                  size={16}
-                  className="flex-none text-brand-500"
-                />
-                {item.title}
-              </Link>
-            </NavigationMenuPrimitive.Link>
+            <Link
+              href={item.href}
+              onClick={onLinkClick}
+              className="flex items-center gap-2.5 rounded-xl p-3 text-[14px] font-medium no-underline outline-none nav-interactive ring-1 ring-transparent hover:ring-black/10 dark:hover:ring-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-ink dark:text-white/80 hover:text-ink dark:hover:text-white transition-colors focus-visible:ring-brand-500 focus-visible:ring-2"
+            >
+              <Icon
+                size={16}
+                className="flex-none text-brand-500"
+              />
+              {item.title}
+            </Link>
           </li>
         );
       })}
@@ -88,15 +83,13 @@ function SimplePanel({ items, onLinkClick }: { items: SubmenuItem[]; onLinkClick
     <ul className="grid gap-0.5 p-2 w-[220px]">
       {items.map((item) => (
         <li key={item.title}>
-          <NavigationMenuPrimitive.Link asChild>
-            <Link
-              href={item.href}
-              onClick={onLinkClick}
-              className="block rounded-xl px-3 py-2.5 text-[14px] font-medium no-underline outline-none nav-interactive ring-1 ring-transparent hover:ring-black/10 dark:hover:ring-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-ink dark:text-white/80 hover:text-ink dark:hover:text-white transition-colors focus-visible:ring-brand-500 focus-visible:ring-2"
-            >
-              {item.title}
-            </Link>
-          </NavigationMenuPrimitive.Link>
+          <Link
+            href={item.href}
+            onClick={onLinkClick}
+            className="block rounded-xl px-3 py-2.5 text-[14px] font-medium no-underline outline-none nav-interactive ring-1 ring-transparent hover:ring-black/10 dark:hover:ring-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-ink dark:text-white/80 hover:text-ink dark:hover:text-white transition-colors focus-visible:ring-brand-500 focus-visible:ring-2"
+          >
+            {item.title}
+          </Link>
         </li>
       ))}
     </ul>
@@ -117,42 +110,92 @@ function DropdownPanel({ children, onLinkClick }: { children: SubmenuItem[]; onL
   }
 }
 
-// ─── Desktop nav item ──────────────────────────────────────────────────────
-function DesktopNavItem({ link, onLinkClick }: { link: NavigationLink; onLinkClick?: () => void }) {
-  if (!link.children) {
-    return (
-      <NavigationMenuPrimitive.Item value={link.label}>
-        <NavigationMenuPrimitive.Link asChild>
-          <Link
-            href={link.href ?? "/"}
-            onClick={onLinkClick}
-            className="flex items-center gap-1 px-3 py-2 rounded-lg text-[14px] font-semibold text-ink dark:text-white/90 no-underline outline-none nav-interactive nav-link-indicator ring-1 ring-transparent hover:ring-black/10 dark:hover:ring-white/10 hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus-visible:ring-brand-500 focus-visible:ring-2"
-          >
-            {link.label}
-          </Link>
-        </NavigationMenuPrimitive.Link>
-      </NavigationMenuPrimitive.Item>
-    );
-  }
-
+// ─── Desktop navigation component ──────────────────────────────────────────
+function DesktopNav({
+  activeDropdown,
+  onMouseEnter,
+  onMouseLeave,
+  onToggle,
+  onLinkClick,
+}: {
+  activeDropdown: string;
+  onMouseEnter: (label: string) => void;
+  onMouseLeave: () => void;
+  onToggle: (label: string) => void;
+  onLinkClick: () => void;
+}) {
   return (
-    <NavigationMenuPrimitive.Item value={link.label}>
-      <NavigationMenuPrimitive.Trigger
-        className="group flex items-center gap-1 px-3 py-2 rounded-lg text-[14px] font-semibold text-ink dark:text-white/90 outline-none nav-interactive nav-link-indicator ring-1 ring-transparent hover:ring-black/10 dark:hover:ring-white/10 hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus-visible:ring-brand-500 focus-visible:ring-2 cursor-pointer"
-      >
-        {link.label}
-        <ChevronDown
-          size={14}
-          className="nav-chevron flex-none text-mut relative top-px"
-          aria-hidden="true"
-        />
-      </NavigationMenuPrimitive.Trigger>
+    <div className="hidden md:flex relative flex-1 items-center justify-center gap-0.5">
+      {navigationLinks.map((link) => {
+        const hasChildren = Boolean(link.children && link.children.length > 0);
+        const isOpen = activeDropdown === link.label;
 
-      {/* Content renders INSIDE the Viewport — glass styling is on Viewport, not here */}
-      <NavigationMenuPrimitive.Content className="data-[motion=from-start]:animate-none data-[motion=from-end]:animate-none data-[motion=to-start]:animate-none data-[motion=to-end]:animate-none">
-        <DropdownPanel onLinkClick={onLinkClick}>{link.children}</DropdownPanel>
-      </NavigationMenuPrimitive.Content>
-    </NavigationMenuPrimitive.Item>
+        if (!hasChildren) {
+          return (
+            <Link
+              key={link.label}
+              href={link.href ?? "/"}
+              onClick={onLinkClick}
+              className="flex items-center gap-1 px-3 py-2 rounded-lg text-[14px] font-semibold text-ink dark:text-white/90 no-underline outline-none nav-interactive nav-link-indicator ring-1 ring-transparent hover:ring-black/10 dark:hover:ring-white/10 hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus-visible:ring-brand-500 focus-visible:ring-2"
+            >
+              {link.label}
+            </Link>
+          );
+        }
+
+        return (
+          <div
+            key={link.label}
+            className="relative"
+            onMouseEnter={() => onMouseEnter(link.label)}
+            onMouseLeave={onMouseLeave}
+          >
+            <button
+              type="button"
+              onClick={() => onToggle(link.label)}
+              aria-expanded={isOpen}
+              className="group flex items-center gap-1 px-3 py-2 rounded-lg text-[14px] font-semibold text-ink dark:text-white/90 outline-none nav-interactive nav-link-indicator ring-1 ring-transparent hover:ring-black/10 dark:hover:ring-white/10 hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus-visible:ring-brand-500 focus-visible:ring-2 cursor-pointer"
+            >
+              {link.label}
+              <ChevronDown
+                size={14}
+                className={cn(
+                  "nav-chevron flex-none text-mut relative top-px transition-transform duration-150",
+                  isOpen && "rotate-180"
+                )}
+                aria-hidden="true"
+              />
+            </button>
+
+            {/* Strictly static in place dropdown with invisible hover bridge & 0 horizontal shift */}
+            {isOpen && (
+              <div
+                className={cn(
+                  "absolute top-full z-50 pt-2",
+                  link.label === "Support" ? "right-0" : "left-0"
+                )}
+                onMouseEnter={() => onMouseEnter(link.label)}
+                onMouseLeave={onMouseLeave}
+              >
+                <div
+                  className={cn(
+                    "relative overflow-hidden",
+                    // Invisible hover bridge pseudo-element ensuring continuous cursor contact across any subpixel gap
+                    "before:absolute before:-top-3 before:left-0 before:right-0 before:h-4 before:content-['']",
+                    "rounded-xl border border-white/40 dark:border-white/10",
+                    "bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl backdrop-saturate-150",
+                    "shadow-xl shadow-black/10",
+                    "transition-opacity duration-150"
+                  )}
+                >
+                  <DropdownPanel children={link.children!} onLinkClick={onLinkClick} />
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -213,22 +256,66 @@ export default function FloatingNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string>("");
+  const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const rafRef = useRef<number>(0);
   const scrolledRef = useRef(false);
 
   const { itemCount } = useCart();
 
+  // Mouse-leave debounce handlers
+  const handleMouseEnter = useCallback((label: string) => {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
+    setActiveDropdown(label);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+    }
+    leaveTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown("");
+    }, 200);
+  }, []);
+
+  const handleToggle = useCallback((label: string) => {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
+    setActiveDropdown((prev) => (prev === label ? "" : label));
+  }, []);
+
+  const handleCloseDropdown = useCallback(() => {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
+    setActiveDropdown("");
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (leaveTimeoutRef.current) {
+        clearTimeout(leaveTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
-        setActiveDropdown("");
+        handleCloseDropdown();
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [handleCloseDropdown]);
 
   // Passive scroll listener with rAF — never blocks main thread
   useEffect(() => {
@@ -259,12 +346,12 @@ export default function FloatingNavbar() {
       if (window.innerWidth >= 768) {
         setMobileOpen(false);
       } else {
-        setActiveDropdown("");
+        handleCloseDropdown();
       }
     }
     window.addEventListener("resize", onResize, { passive: true });
     return () => window.removeEventListener("resize", onResize);
-  }, []);
+  }, [handleCloseDropdown]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -283,10 +370,6 @@ export default function FloatingNavbar() {
     () => setMobileOpen((v) => !v),
     []
   );
-
-  const handleCloseDropdown = useCallback(() => {
-    setActiveDropdown("");
-  }, []);
 
   return (
     <>
@@ -331,41 +414,14 @@ export default function FloatingNavbar() {
             </span>
           </Link>
 
-          {/* ── Desktop navigation (Radix NavigationMenu) ─────────── */}
-          <NavigationMenuPrimitive.Root
-            value={activeDropdown}
-            onValueChange={setActiveDropdown}
-            className="hidden md:flex relative flex-1 items-center justify-center"
-            delayDuration={0}
-            skipDelayDuration={0}
-          >
-            <NavigationMenuPrimitive.List className="flex items-center gap-0.5 list-none m-0 p-0">
-              {navigationLinks.map((link) => (
-                <DesktopNavItem
-                  key={link.label}
-                  link={link}
-                  onLinkClick={handleCloseDropdown}
-                />
-              ))}
-            </NavigationMenuPrimitive.List>
-
-            {/* Viewport — the floating container where dropdown content renders */}
-            <div className="absolute left-0 top-full flex justify-center w-full perspective-[2000px]">
-              <NavigationMenuPrimitive.Viewport
-                className={cn(
-                  "relative mt-2 overflow-hidden",
-                  // Invisible bridge to eliminate cursor gap when moving into dropdown
-                  "before:absolute before:-top-3 before:left-0 before:right-0 before:h-4 before:content-['']",
-                  "rounded-xl border border-white/40 dark:border-white/10",
-                  "bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl backdrop-saturate-150",
-                  "shadow-xl shadow-black/10",
-                  // Size styling without transitions or animations
-                  "h-[var(--radix-navigation-menu-viewport-height)]",
-                  "w-[var(--radix-navigation-menu-viewport-width)]"
-                )}
-              />
-            </div>
-          </NavigationMenuPrimitive.Root>
+          {/* ── Desktop navigation (Static in-place dropdowns with 200ms debounce) ── */}
+          <DesktopNav
+            activeDropdown={activeDropdown}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onToggle={handleToggle}
+            onLinkClick={handleCloseDropdown}
+          />
 
           {/* ── Right side: Cart Icon & Auth Slot ─────────────────── */}
           <div className="flex items-center gap-2 ml-auto shrink-0">

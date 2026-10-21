@@ -1,3 +1,5 @@
+'use client';
+
 const ITEMS = [
   "FOOD & GROCERIES",
   "EVERYDAY ESSENTIALS",
@@ -10,10 +12,28 @@ const ITEMS = [
 ];
 
 export default function Marquee() {
-  const row = [...ITEMS, ...ITEMS];
+  // Duplicating ITEMS within each track ensures adequate span width across ultra-wide viewports
+  const trackItems = [...ITEMS, ...ITEMS];
+
   return (
-    <div className="mq" aria-hidden="true">
-      <div>{row.map((t, i) => <span key={i}>{t}</span>)}</div>
+    <div
+      className="mq overflow-hidden whitespace-nowrap w-full select-none"
+      aria-hidden="true"
+    >
+      <div className="animate-marquee flex w-max">
+        {/* Primary Track */}
+        <div className="flex shrink-0 items-center">
+          {trackItems.map((item, idx) => (
+            <span key={`primary-${idx}`}>{item}</span>
+          ))}
+        </div>
+        {/* Duplicate Track: exact duplicate ensures seamless 0% -> -50% loop with zero snap */}
+        <div className="flex shrink-0 items-center">
+          {trackItems.map((item, idx) => (
+            <span key={`duplicate-${idx}`}>{item}</span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

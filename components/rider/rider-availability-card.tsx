@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Bike, Power, Radio, ShieldCheck, Loader2 } from 'lucide-react';
+import { Bike, Power, Radio, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { createClient } from '@/lib/supabase/client';
+import { LiquidWaveSpinner } from '@/components/ui/spinner-10';
 
 export function RiderAvailabilityCard() {
   const [online, setOnline] = useState(false);
@@ -124,7 +125,7 @@ export function RiderAvailabilityCard() {
           }`}
         >
           {updating ? (
-            <Loader2 size={16} className="animate-spin" />
+            <LiquidWaveSpinner size="sm" hideText />
           ) : (
             <Power size={16} />
           )}

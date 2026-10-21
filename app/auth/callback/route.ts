@@ -1,23 +1,23 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { getSupabaseBrowserCredentials } from '@/lib/supabase/env';
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
   const nextParam = requestUrl.searchParams.get('next');
-  const origin = requestUrl.origin;
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const isLocalEnv = process.env.NODE_ENV === 'development';
+  const origin = isLocalEnv || !forwardedHost ? requestUrl.origin : `https://${forwardedHost}`;
 
   if (code) {
-    // 1. Prepare redirect URL base
+    const creds = getSupabaseBrowserCredentials({ throwOnMissing: true });
     let destinationPath = '/stores';
-
-    // 2. Initialize response early so cookies can be written directly to Set-Cookie headers
-    // Temporary redirect response object to capture auth session cookies
-    let response = NextResponse.redirect(new URL(destinationPath, origin));
+    const response = NextResponse.redirect(new URL(destinationPath, origin));
 
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      creds!.url,
+      creds!.anonKey,
       {
         cookies: {
           getAll() {
@@ -32,17 +32,15 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    // 3. Exchange auth code for session
+    // 1. Exchange auth code for persistent session
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data?.user) {
       const user = data.user;
-
-      // 4. Ensure profile and role records exist defensively
       let userRole: string = 'customer';
 
+      // 2. Resolve profile and role
       try {
-        // Query existing user_roles
         const { data: roleRow } = await supabase
           .from('user_roles')
           .select('role')
@@ -52,42 +50,30 @@ export async function GET(request: NextRequest) {
         if (roleRow?.role) {
           userRole = roleRow.role;
         } else {
-          // Check metadata role fallback
-          const metaRole = (user.user_metadata?.role as string) || 'customer';
-          userRole = metaRole;
+          userRole = (user.user_metadata?.role as string) || 'customer';
 
-          // Check profiles
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('id', user.id)
-            .maybeSingle();
+          const fullName =
+            (user.user_metadata?.full_name as string) ||
+            (user.user_metadata?.name as string) ||
+            user.email?.split('@')[0] ||
+            '';
 
-          if (!profile) {
-            const fullName =
-              (user.user_metadata?.full_name as string) ||
-              (user.user_metadata?.name as string) ||
-              user.email?.split('@')[0] ||
-              '';
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            full_name: fullName,
+            avatar_path: (user.user_metadata?.avatar_url as string) || null,
+          });
 
-            await supabase.from('profiles').insert({
-              id: user.id,
-              full_name: fullName,
-              avatar_path: (user.user_metadata?.avatar_url as string) || null,
-            });
-          }
-
-          // Insert initial role
-          await supabase.from('user_roles').insert({
+          await supabase.from('user_roles').upsert({
             user_id: user.id,
             role: userRole,
           });
         }
       } catch (profileErr) {
-        console.warn('OAuth callback: profile/role check non-fatal error:', profileErr);
+        console.warn('OAuth callback profile resolution non-fatal warning:', profileErr);
       }
 
-      // 5. Determine target destination based on authenticated role or explicit next parameter
+      // 3. Determine redirect target based on explicit nextParam or resolved role
       const isGenericDashboardRequest =
         !nextParam ||
         nextParam === '/dashboard' ||
@@ -97,7 +83,7 @@ export async function GET(request: NextRequest) {
       if (!isGenericDashboardRequest && nextParam.startsWith('/')) {
         destinationPath = nextParam;
       } else {
-        switch (userRole as string) {
+        switch (userRole) {
           case 'merchant':
             destinationPath = '/merchant';
             break;
@@ -109,24 +95,18 @@ export async function GET(request: NextRequest) {
             break;
           case 'customer':
           default:
-            destinationPath = (nextParam === '/dashboard' || nextParam === '/customer-profile') ? '/account' : '/stores';
+            destinationPath =
+              nextParam === '/dashboard' || nextParam === '/customer-profile'
+                ? '/account'
+                : '/stores';
             break;
         }
       }
 
-      // 6. Handle custom forwarded host in production
-      const forwardedHost = request.headers.get('x-forwarded-host');
-      const isLocalEnv = process.env.NODE_ENV === 'development';
-      const redirectBase = isLocalEnv || !forwardedHost ? origin : `https://${forwardedHost}`;
-      const finalUrl = new URL(destinationPath, redirectBase);
-
-      // Re-target response to the final URL while preserving the Set-Cookie headers
-      const finalResponse = NextResponse.redirect(finalUrl);
-      response.cookies.getAll().forEach((cookie) => {
-        finalResponse.cookies.set(cookie.name, cookie.value, cookie);
-      });
-
-      return finalResponse;
+      const finalUrl = new URL(destinationPath, origin);
+      // Update Location header directly so all session cookies attached to response are preserved
+      response.headers.set('Location', finalUrl.toString());
+      return response;
     }
   }
 

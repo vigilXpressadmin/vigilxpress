@@ -66,8 +66,9 @@ function Dropdown({ onClose }: { onClose: () => void }) {
   return (
     <div
       ref={ref}
-      className="absolute right-0 top-[calc(100%+10px)] w-[520px] rounded-2xl border border-white/10 bg-ink/90 backdrop-blur-2xl shadow-2xl p-4 grid grid-cols-3 gap-3 z-[9999]"
+      className="absolute right-0 top-full pt-2 w-[520px] z-[9999]"
     >
+      <div className="relative rounded-2xl border border-white/10 bg-ink/90 backdrop-blur-2xl shadow-2xl p-4 grid grid-cols-3 gap-3 before:absolute before:-top-3 before:left-0 before:right-0 before:h-4 before:content-['']">
       {GROUPS.map(({ heading, items }) => (
         <div key={heading}>
           <p className="text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5 px-1">
@@ -86,6 +87,7 @@ function Dropdown({ onClose }: { onClose: () => void }) {
           ))}
         </div>
       ))}
+      </div>
     </div>
   );
 }

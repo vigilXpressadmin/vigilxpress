@@ -4,11 +4,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { SITE } from '@/lib/site';
 import { useToast } from '@/components/ui/toast';
 import { createClient } from '@/lib/supabase/client';
-import { GoldenDustCanvas } from '@/components/animations/golden-dust';
+import { LiquidWaveSpinner } from '@/components/ui/spinner-10';
+
+const GoldenDustCanvas = dynamic(
+  () => import('@/components/animations/golden-dust').then((m) => m.GoldenDustCanvas),
+  { ssr: false }
+);
 
 export interface AuthSubmitData {
   email: string;
@@ -119,10 +125,27 @@ export function AuthCard({
         await onGoogleSignIn();
       } else {
         const supabase = createClient();
-        await supabase.auth.signInWithOAuth({
+        if (!supabase) {
+          showToast('Authentication service is not configured.', 'error');
+          setInternalGoogleLoading(false);
+          return;
+        }
+        const origin = window.location.origin;
+        const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: `${window.location.origin}/auth/callback` },
+          options: {
+            redirectTo: `${origin}/auth/callback`,
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+            },
+          },
         });
+        if (error) {
+          console.error('Google Auth Error:', error.message);
+          showToast(error.message, 'error');
+          setInternalGoogleLoading(false);
+        }
       }
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Google sign-in failed';
@@ -323,7 +346,7 @@ export function AuthCard({
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 size={16} className="animate-spin text-ink" />
+                    <LiquidWaveSpinner size="sm" hideText />
                     <span>{isLogin ? 'Logging in...' : 'Creating account...'}</span>
                   </>
                 ) : (
@@ -351,7 +374,7 @@ export function AuthCard({
             >
               {isGoogleLoading ? (
                 <>
-                  <Loader2 size={16} className="animate-spin text-white" />
+                  <LiquidWaveSpinner size="sm" hideText />
                   <span>Redirecting...</span>
                 </>
               ) : (

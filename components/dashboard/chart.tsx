@@ -5,11 +5,13 @@ import dynamic from 'next/dynamic';
 import type { ApexOptions } from 'apexcharts';
 import { BarChart3 } from 'lucide-react';
 
+import { LiquidWaveSpinner } from '@/components/ui/spinner-10';
+
 const ApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
   loading: () => (
-    <div className="h-[300px] w-full flex items-center justify-center bg-soft/50 rounded-xl animate-pulse">
-      <span className="text-xs text-neutral-400">Loading chart...</span>
+    <div className="h-[300px] w-full flex flex-col items-center justify-center bg-soft/50 rounded-xl">
+      <LiquidWaveSpinner size="sm" words={['Loading chart…']} />
     </div>
   ),
 });

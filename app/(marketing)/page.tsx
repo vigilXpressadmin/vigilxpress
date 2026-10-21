@@ -1,16 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import { MapPin, ShieldCheck, KeyRound, ShoppingBag } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import Marquee from "@/components/Marquee";
 import OrderStatusCard from "@/components/OrderStatusCard";
 import Faq from "@/components/Faq";
-
-const Journey = dynamic(() => import("@/components/Journey"), {
-  loading: () => null,
-  ssr: true,
-});
+import Journey from "@/components/Journey";
 
 const AREAS_TO_CONFIRM = [
   "Sagamu",

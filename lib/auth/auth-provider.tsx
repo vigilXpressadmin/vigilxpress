@@ -125,9 +125,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Failsafe timeout: strictly set loading to false after 3s so session check never hangs indefinitely
+    const failsafeTimeout = setTimeout(() => {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }, 3000);
+
     // 1. Initial hydration from persistent session
     supabase.auth.getSession().then(async ({ data: { session: initSession }, error }) => {
       if (!isMounted) return;
+      clearTimeout(failsafeTimeout);
       if (error || !initSession?.user) {
         setSession(null);
         setUser(null);
@@ -142,6 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     }).catch(() => {
+      clearTimeout(failsafeTimeout);
       if (isMounted) setLoading(false);
     });
 
@@ -168,6 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       isMounted = false;
+      clearTimeout(failsafeTimeout);
       subscription.unsubscribe();
     };
   }, []);

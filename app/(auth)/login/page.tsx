@@ -82,14 +82,22 @@ function LoginForm() {
     }
     setGoogleLoading(true);
     try {
-      const callbackUrl = `${window.location.origin}/auth/callback${
+      const origin = window.location.origin;
+      const callbackUrl = `${origin}/auth/callback${
         next ? `?next=${encodeURIComponent(next)}` : ''
       }`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: callbackUrl },
+        options: {
+          redirectTo: callbackUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
       });
       if (error) {
+        console.error('Google Auth Error:', error.message);
         showToast(error.message, 'error');
         setGoogleLoading(false);
       }

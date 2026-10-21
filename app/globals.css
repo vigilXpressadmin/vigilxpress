@@ -118,10 +118,23 @@ h1, h2, h3 { line-height: 1.04; letter-spacing: -0.03em; font-weight: 800; }
 
   /* marquee */
   .mq { @apply bg-brand-500 text-ink overflow-hidden whitespace-nowrap font-extrabold text-[22px] py-3.5 tracking-tight; }
-  .mq > div { display: inline-block; animation: mq 32s linear infinite; }
-  .mq span { margin: 0 22px; }
+  .mq span { margin: 0 22px; display: inline-flex; align-items: center; }
   .mq span::after { content: "✦"; margin-left: 44px; opacity: .5; }
-  @keyframes mq { to { transform: translateX(-50%); } }
+
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 25s linear infinite;
+    will-change: transform;
+  }
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
 
   /* journey */
   .jr { height: 280vh; padding: 0; background: var(--soft); }

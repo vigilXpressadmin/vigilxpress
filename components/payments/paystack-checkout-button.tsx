@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Loader2, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { CreditCard, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { triggerPaystackPayment, type PaystackTransactionResult } from '@/lib/payments/paystack-client';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/toast';
+import { LiquidWaveSpinner } from '@/components/ui/spinner-10';
 
 interface PaystackCheckoutButtonProps {
   orderGroupId: string;
@@ -176,7 +177,7 @@ export function PaystackCheckoutButton({
       >
         {loading || verifying ? (
           <>
-            <Loader2 size={16} className="animate-spin" />
+            <LiquidWaveSpinner size="sm" hideText />
             <span>{verifying ? 'Verifying payment…' : 'Connecting to Paystack…'}</span>
           </>
         ) : (

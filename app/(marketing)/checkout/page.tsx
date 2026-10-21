@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, MapPin, CreditCard, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, MapPin, CreditCard, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useCart } from '@/lib/cart/use-cart';
 import { formatKobo } from '@/lib/shared/money';
 import { createClient } from '@/lib/supabase/client';
 import { PaystackCheckoutButton } from '@/components/payments/paystack-checkout-button';
 import { useToast } from '@/components/ui/toast';
+import { LiquidWaveSpinner } from '@/components/ui/spinner-10';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -41,20 +42,40 @@ export default function CheckoutPage() {
 
   // Auth guard: redirect unauthenticated users to /login with return URL
   useEffect(() => {
+    let isMounted = true;
+
+    // Failsafe timeout: strictly dismiss loader after 3s so screen never gets stuck
+    const failsafeTimer = setTimeout(() => {
+      if (isMounted) {
+        setLoadingAuth(false);
+      }
+    }, 3000);
+
     async function loadUserAndAddress() {
       try {
         const supabase = createClient();
+        if (!supabase) {
+          if (isMounted) {
+            router.replace('/login?next=' + encodeURIComponent('/checkout'));
+          }
+          return;
+        }
+
         const {
           data: { user: currentAuthUser },
         } = await supabase.auth.getUser();
 
         if (!currentAuthUser) {
           // Not logged in → redirect to login with return-to-checkout
-          router.replace('/login?next=' + encodeURIComponent('/checkout'));
+          if (isMounted) {
+            router.replace('/login?next=' + encodeURIComponent('/checkout'));
+          }
           return;
         }
 
-        setUser(currentAuthUser);
+        if (isMounted) {
+          setUser(currentAuthUser);
+        }
 
         // Attempt loading default saved address
         const { data: savedAddresses } = await supabase
@@ -64,7 +85,7 @@ export default function CheckoutPage() {
           .order('is_default', { ascending: false })
           .limit(1);
 
-        if (savedAddresses && savedAddresses.length > 0) {
+        if (savedAddresses && savedAddresses.length > 0 && isMounted) {
           const def = savedAddresses[0];
           setAddress({
             label: def.label || 'Home',
@@ -77,11 +98,19 @@ export default function CheckoutPage() {
       } catch (err) {
         console.warn('Checkout: error loading saved address', err);
       } finally {
-        setLoadingAuth(false);
+        if (isMounted) {
+          clearTimeout(failsafeTimer);
+          setLoadingAuth(false);
+        }
       }
     }
 
     loadUserAndAddress();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(failsafeTimer);
+    };
   }, [router]);
 
   const [accessCode, setAccessCode] = useState<string | null>(null);
@@ -181,9 +210,8 @@ export default function CheckoutPage() {
   if (loadingAuth) {
     return (
       <div className="container-x pt-32 pb-20">
-        <div className="card p-12 text-center max-w-md mx-auto bg-white shadow-xl">
-          <Loader2 size={32} className="animate-spin text-brand-500 mx-auto mb-4" />
-          <p className="text-sm text-neutral-600 font-semibold">Verifying your session…</p>
+        <div className="card p-12 text-center max-w-md mx-auto bg-white shadow-xl flex flex-col items-center justify-center min-h-[220px]">
+          <LiquidWaveSpinner size="md" words={['Verifying your session…']} />
         </div>
       </div>
     );
@@ -359,10 +387,10 @@ export default function CheckoutPage() {
                   className="btn-primary w-full py-3.5 shadow-md shadow-brand-500/20 disabled:opacity-50"
                 >
                   {submitting ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
+                    <span className="inline-flex items-center justify-center gap-2">
+                      <LiquidWaveSpinner size="sm" hideText />
                       <span>Initializing Paystack…</span>
-                    </>
+                    </span>
                   ) : (
                     <span>Proceed to Paystack Payment</span>
                   )}

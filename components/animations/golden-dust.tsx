@@ -28,15 +28,8 @@ interface Particle {
  */
 export function GoldenDustCanvas({ className = '' }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -74,11 +67,8 @@ export function GoldenDustCanvas({ className = '' }: { className?: string }) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const resize = () => {
-      const parent = canvas.parentElement;
-      width = parent ? parent.clientWidth : window.innerWidth;
-      height = parent ? parent.clientHeight : window.innerHeight;
-      if (width === 0) width = window.innerWidth;
-      if (height === 0) height = window.innerHeight;
+      width = window.innerWidth;
+      height = window.innerHeight;
 
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
@@ -237,13 +227,24 @@ export function GoldenDustCanvas({ className = '' }: { className?: string }) {
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [mounted]);
+  }, []);
 
   return (
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className={`absolute inset-0 pointer-events-none z-0 w-full h-full ${className}`}
+      className={`fixed inset-0 pointer-events-none z-0 w-full h-full ${className}`}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }}
     />
   );
 }
+
+export default GoldenDustCanvas;

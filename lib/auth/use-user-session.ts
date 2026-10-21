@@ -150,6 +150,13 @@ export function useUserSession(): UseUserSessionReturn {
       return;
     }
 
+    const failsafeTimeout = setTimeout(() => {
+      hasInitialLoaded = true;
+      if (mountedRef.current) {
+        setLoading(false);
+      }
+    }, 3000);
+
     if (!hasInitialLoaded) {
       refreshUser();
     }
@@ -158,6 +165,7 @@ export function useUserSession(): UseUserSessionReturn {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      clearTimeout(failsafeTimeout);
       if (!session?.user || event === 'SIGNED_OUT') {
         hasInitialLoaded = true;
         notifyListeners(null);
@@ -172,6 +180,7 @@ export function useUserSession(): UseUserSessionReturn {
     });
 
     return () => {
+      clearTimeout(failsafeTimeout);
       subscription.unsubscribe();
     };
   }, [refreshUser]);

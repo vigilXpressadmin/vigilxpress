@@ -8,7 +8,6 @@ import {
   Phone,
   Shield,
   Save,
-  Loader2,
   ExternalLink,
   Store,
   Bike,
@@ -19,6 +18,7 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/toast';
 import { type DashboardRole } from '@/lib/dashboard/menu';
+import { LiquidWaveSpinner } from '@/components/ui/spinner-10';
 
 interface ProfileFormProps {
   role: 'merchant' | 'rider' | 'admin';
@@ -121,9 +121,8 @@ export function ProfileForm({ role }: ProfileFormProps) {
   // Graceful loading state
   if (loading) {
     return (
-      <div className="card p-12 text-center space-y-4 max-w-2xl mx-auto">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-500 mx-auto" />
-        <p className="text-sm text-neutral-500">Loading account profile…</p>
+      <div className="card p-12 text-center max-w-2xl mx-auto flex flex-col items-center justify-center min-h-[220px]">
+        <LiquidWaveSpinner size="md" words={['Loading account profile…']} />
       </div>
     );
   }
@@ -381,7 +380,7 @@ export function ProfileForm({ role }: ProfileFormProps) {
             >
               {saving ? (
                 <>
-                  <Loader2 size={15} className="animate-spin" />
+                  <LiquidWaveSpinner size="sm" hideText />
                   <span>Saving…</span>
                 </>
               ) : (
