@@ -1,0 +1,2 @@
+import { ORDER_STATES, type OrderState } from '@/lib/constants';
+export function OrderStatusTimeline({ current }: { current: OrderState }) { const activeIndex = ORDER_STATES.indexOf(current); return <ol className="space-y-3">{ORDER_STATES.map((state, index) => <li key={state} className="flex items-center gap-3"><span className={`h-3 w-3 rounded-full ${index <= activeIndex ? 'bg-brand-500' : 'bg-line'}`} /><span className={index <= activeIndex ? 'font-medium' : 'text-neutral-400'}>{state.replaceAll('_',' ')}</span></li>)}</ol>; }

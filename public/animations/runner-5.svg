@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Runner 5: Reaching destination holding delivery package aloft -->
+  <circle cx="50" cy="20" r="8" fill="currentColor" stroke="none" />
+  <line x1="50" y1="28" x2="50" y2="54" />
+  <!-- Both arms holding delivery package -->
+  <line x1="50" y1="36" x2="66" y2="30" />
+  <line x1="50" y1="36" x2="34" y2="30" />
+  <polygon points="42,12 58,12 62,24 38,24" fill="#FF6B1A" stroke="#FF6B1A" stroke-width="1.5" />
+  <!-- Running feet -->
+  <line x1="50" y1="54" x2="64" y2="72" />
+  <line x1="64" y1="72" x2="74" y2="86" />
+  <line x1="50" y1="54" x2="36" y2="68" />
+  <line x1="36" y1="68" x2="28" y2="82" />
+</svg>

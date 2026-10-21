@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --o: #FF6B1A; --o2: #FF8A3D; --ink: #171717; --ink2: #222;
+  --soft: #F7F7F5; --line: #E7E7E4; --mut: #6B6B6B;
+  --ok: #16A34A; --warn: #F59E0B;
+}
+
+html { scroll-behavior: smooth; }
+body { @apply text-ink bg-white overflow-x-hidden; font-size: 17px; line-height: 1.6; }
+h1, h2, h3 { line-height: 1.04; letter-spacing: -0.03em; font-weight: 800; }
+:focus-visible { outline: 3px solid var(--o); outline-offset: 3px; }
+
+@layer components {
+  .container-x { @apply max-w-wrap mx-auto px-5; }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-bold text-base
+      bg-brand-500 text-ink px-6 py-3.5 border-2 border-transparent
+      transition hover:bg-brand-400 hover:shadow-[0_10px_30px_-8px_rgba(255,107,26,.7)]
+      active:scale-[.97] disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-bold text-base
+      px-6 py-3.5 border-2 border-white/40 text-white transition hover:border-white;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-bold text-sm
+      bg-soft border-2 border-line text-ink px-4 py-2.5 transition hover:bg-neutral-200/70
+      hover:border-neutral-300 active:scale-[.97] disabled:opacity-50;
+  }
+  .card { @apply bg-white border border-line rounded-2xl p-6; }
+  .input {
+    @apply w-full rounded-xl border-2 border-line bg-white px-3.5 py-3.5 text-base
+      font-medium outline-none focus:border-brand-500 transition;
+  }
+  .eb { /* orange eyebrow label */
+    @apply inline-flex items-center gap-2 text-sm font-bold text-brand-500 mb-5;
+  }
+  .eb::before { content: ""; @apply w-[26px] h-[3px] bg-brand-500 rounded-sm; }
+
+  /* reveal on scroll */
+  .rv { opacity: 0; transform: translateY(28px); transition: .45s cubic-bezier(.2,.8,.2,1); }
+  .rv.in, .in .rv { opacity: 1; transform: none; }
+
+  /* ── GLASS SYSTEM ──────────────────────────────── */
+  .glass {
+    @apply bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl;
+  }
+  .glass-strong {
+    @apply bg-white/15 backdrop-blur-2xl border border-white/20 shadow-2xl rounded-2xl;
+  }
+  .glass-dark {
+    background: rgba(34,34,34,.70);
+    @apply backdrop-blur-xl border border-white/10 rounded-2xl;
+  }
+  .glass-btn {
+    @apply inline-flex items-center gap-2 rounded-xl px-6 py-3 font-bold
+      border border-white/20 bg-white/10 backdrop-blur-md text-white
+      hover:bg-white/20 hover:border-white/40 active:scale-[.97] transition-all duration-200;
+  }
+
+  /* hero */
+  .hero { @apply bg-ink text-white min-h-[100svh] flex items-center relative overflow-hidden pt-[110px] pb-[70px]; }
+  .glow {
+    position: absolute; width: 70vmax; height: 70vmax; right: -20vmax; top: -20vmax;
+    background: radial-gradient(closest-side, rgba(255,107,26,.38), transparent);
+    pointer-events: none;
+  }
+  .hero-glow {
+    position: absolute;
+    width: min(520px, 86vw);
+    height: min(520px, 86vw);
+    background: radial-gradient(circle closest-side, rgba(255,107,26,.30), rgba(255,107,26,.08) 55%, transparent 85%);
+    pointer-events: none;
+    border-radius: 9999px;
+    filter: blur(40px);
+  }
+  .eyebrow-chip {
+    @apply inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full
+      border border-brand-500/30 bg-brand-500/10 backdrop-blur-sm
+      text-xs font-semibold text-brand-300 transition-colors
+      hover:bg-brand-500/15 hover:border-brand-500/50;
+  }
+  .hline { display: block; overflow: hidden; }
+  .hline i {
+    display: block; font-style: normal; transform: translateY(105%);
+    animation: up .5s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  .hline:nth-child(2) i { animation-delay: .12s; color: var(--o); }
+  .hline:nth-child(3) i { animation-delay: .24s; }
+  @keyframes up { to { transform: none; } }
+  .fade-in { opacity: 0; animation: fd .5s forwards; }
+  @keyframes fd { to { opacity: 1; } }
+
+  /* floating order tracker card — glass-strong treatment */
+  .phone-card {
+    @apply absolute text-ink rounded-[22px] p-4 w-[230px];
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,.20);
+    box-shadow: 0 30px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.08) inset;
+  }
+  .tl { @apply list-none p-0 text-[13px] font-medium; }
+  .tl li { @apply flex gap-2.5 items-center py-1 text-[#999] transition-colors duration-500; }
+  .tl i {
+    width: 14px; height: 14px; border-radius: 50%; border: 2px solid #ccc; flex: none;
+    transition: .4s;
+  }
+  .tl li.done { @apply text-ink; }
+  .tl li.done i { background: var(--ok); border-color: var(--ok); }
+  .tl li.now { @apply text-ink font-bold; }
+  .tl li.now i { background: var(--o); border-color: var(--o); animation: pl 1.3s infinite; }
+  @keyframes pl { 50% { box-shadow: 0 0 0 6px rgba(255,107,26,.25); } }
+
+  /* marquee */
+  .mq { @apply bg-brand-500 text-ink overflow-hidden whitespace-nowrap font-extrabold text-[22px] py-3.5 tracking-tight; }
+  .mq > div { display: inline-block; animation: mq 32s linear infinite; }
+  .mq span { margin: 0 22px; }
+  .mq span::after { content: "✦"; margin-left: 44px; opacity: .5; }
+  @keyframes mq { to { transform: translateX(-50%); } }
+
+  /* journey */
+  .jr { height: 280vh; padding: 0; background: var(--soft); }
+  .jin { position: sticky; top: 0; height: 100svh; display: flex; flex-direction: column; justify-content: center; }
+  .jst { @apply grid grid-cols-5 gap-3; }
+  .js { border-top: 4px solid var(--line); padding-top: 12px; opacity: .4; transition: .4s; }
+  .js.on { opacity: 1; border-color: var(--o); }
+  .js h3 { @apply text-xl; } .js p { @apply text-sm text-mut mt-1 leading-snug; }
+
+  /* cart box + pin — dark glass */
+  .cartbox {
+    @apply text-white rounded-[22px] p-6;
+    background: rgba(23,23,23,.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.10);
+  }
+  .cartbox li { @apply list-none flex justify-between py-1.5 border-b border-[#333] text-[15px]; }
+  .cartbox ul { @apply p-0; }
+  .cartbox .t { @apply font-extrabold text-[22px] border-0 pt-3.5 text-brand-500; }
+  .pin { @apply flex gap-2.5 my-3.5; }
+  .pin b {
+    width: 52px; height: 64px; border-radius: 12px; background: var(--ink);
+    border: 2px solid var(--o); color: var(--o);
+    display: grid; place-items: center; font-size: 32px;
+  }
+
+  /* dark section cards */
+  .cards { @apply grid gap-4; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  .cards .c {
+    @apply rounded-2xl p-[26px] transition hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_rgba(0,0,0,.25)];
+    background: rgba(255,255,255,.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,.15);
+  }
+  .cards .c h3 { @apply text-[22px] mb-2 tracking-tight; }
+  .cards .c p { @apply text-mut text-[15px]; }
+  .dark .cards .c {
+    background: rgba(34,34,34,.70);
+    border-color: rgba(255,255,255,.10);
+  }
+  .dark .cards .c p { @apply text-[#b5b5b5]; }
+  /* light-section cards keep legible text */
+  :not(.dark) .cards .c { @apply bg-white/80 border-line text-ink; }
+  :not(.dark) .cards .c p { @apply text-mut; }
+
+  /* page header (inner pages) */
+  .ph { @apply bg-ink text-white pt-[140px] pb-[70px] relative overflow-hidden; }
+  .ph h1 { font-size: clamp(38px, 6vw, 72px); max-width: 16ch; }
+  .ph p { @apply text-[#cfcfcf] max-w-[54ch] mt-4 text-[19px]; }
+  .ph::after {
+    content: ""; position: absolute; right: -15vmax; top: -15vmax;
+    width: 50vmax; height: 50vmax;
+    background: radial-gradient(closest-side, rgba(255,107,26,.35), transparent);
+  }
+
+  /* legal prose */
+  .prose-legal { @apply max-w-[760px] mx-auto px-5 py-16; }
+  .prose-legal h2 { @apply text-[28px] mt-9 mb-2.5; }
+  .prose-legal p, .prose-legal li { @apply text-[#3a3a3a] mb-2.5; }
+  .prose-legal ul { @apply pl-[22px] mb-4; }
+}
+
+@media (max-width: 860px) {
+  .jr { height: 240vh; }
+  .jst { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .js p { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .hline i { transform: none !important; }
+  .rv, .fade-in { opacity: 1 !important; transform: none !important; }
+  .jr { height: auto; }
+  .jin { position: static; height: auto; padding: 70px 0; }
+  .js { opacity: 1; }
+}

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Runner 2: Mid-stride leap forward -->
+  <circle cx="58" cy="18" r="8" fill="currentColor" stroke="none" />
+  <line x1="55" y1="26" x2="50" y2="50" />
+  <!-- Arms with backpack -->
+  <path d="M42 32 C 40 42, 42 48, 48 50" stroke="#FF6B1A" stroke-width="4" />
+  <line x1="52" y1="34" x2="36" y2="44" />
+  <line x1="52" y1="34" x2="68" y2="38" />
+  <!-- Extended legs in leap -->
+  <line x1="50" y1="50" x2="72" y2="60" />
+  <line x1="72" y1="60" x2="84" y2="54" />
+  <line x1="50" y1="50" x2="34" y2="70" />
+  <line x1="34" y1="70" x2="22" y2="82" />
+</svg>

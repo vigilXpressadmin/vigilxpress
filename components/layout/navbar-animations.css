@@ -1,0 +1,260 @@
+/* ═════════════════════════════════════════════════════════════════════════════
+   Floating Navbar Animation System
+   - Strict CSS-only keyframes and transitions
+   - Keyframes animate exclusively transform & opacity (GPU-accelerated)
+   - Centralized CSS custom properties for timing & snappy cubic-bezier easing
+   - Robust reduced-motion support (prefers-reduced-motion) for full a11y compliance
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --nav-duration-fast: 150ms;
+  --nav-duration: 250ms;
+  --nav-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Keyframe Declarations (Transform & Opacity Only) ─────────────────────── */
+
+@keyframes nav-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes nav-dropdown-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+@keyframes mobile-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobile-menu-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes nav-shimmer {
+  0% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
+
+/* ─── Default / Full Motion Styles ────────────────────────────────────────── */
+
+
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Glass Transition for Navbar Container (No backdrop-filter transition) */
+  .glass-transition {
+    transition: background-color var(--nav-duration) var(--nav-ease),
+      box-shadow var(--nav-duration) var(--nav-ease),
+      border-color var(--nav-duration) var(--nav-ease);
+  }
+
+  /* Desktop Dropdowns & Profile Avatar Dropdown Menu (Instant Snap, Zero Animation) */
+  .nav-dropdown-enter {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .nav-dropdown-exit {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Mobile Dropdown Menu Panel */
+  .mobile-menu-enter {
+    animation: mobile-menu-in var(--nav-duration) var(--nav-ease) forwards;
+    will-change: transform, opacity;
+    -webkit-font-smoothing: antialiased;
+    backface-visibility: hidden;
+  }
+
+  .mobile-menu-exit {
+    animation: mobile-menu-out var(--nav-duration-fast) var(--nav-ease) forwards;
+    will-change: transform, opacity;
+    -webkit-font-smoothing: antialiased;
+    backface-visibility: hidden;
+  }
+
+  /* Mobile Accordion Smooth Expand / Collapse (CSS Grid 0fr -> 1fr) */
+  .mobile-accordion-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--nav-duration) var(--nav-ease);
+  }
+
+  .mobile-accordion-content[data-state="open"] {
+    grid-template-rows: 1fr;
+  }
+
+  /* Hamburger SVG Morph Transitions (CSS-only stroke-dasharray & offset) */
+  .hamburger-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dasharray 350ms var(--nav-ease),
+      stroke-dashoffset 350ms var(--nav-ease),
+      opacity 350ms var(--nav-ease);
+  }
+
+  .hamburger-line-top {
+    stroke-dasharray: 40 160;
+    transform-origin: 50% 50%;
+  }
+
+  .hamburger-line-mid {
+    stroke-dasharray: 40 142;
+    transform-origin: 50% 50%;
+  }
+
+  .hamburger-line-bot {
+    stroke-dasharray: 40 85;
+    transform-origin: 50% 50%;
+  }
+
+  .hamburger-active .hamburger-line-top {
+    stroke-dasharray: 75 160;
+    stroke-dashoffset: -64;
+  }
+
+  .hamburger-active .hamburger-line-mid {
+    stroke-dashoffset: -20;
+    opacity: 0;
+  }
+
+  .hamburger-active .hamburger-line-bot {
+    stroke-dasharray: 75 85;
+    stroke-dashoffset: -64;
+  }
+
+  /* Link Hover Line Indicator */
+  .nav-link-indicator {
+    position: relative;
+  }
+
+  .nav-link-indicator::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--o);
+    border-radius: 1px;
+    transition: width var(--nav-duration-fast) var(--nav-ease),
+      left var(--nav-duration-fast) var(--nav-ease);
+  }
+
+  .nav-link-indicator:hover::after,
+  .nav-link-indicator[data-state="open"]::after {
+    width: 60%;
+    left: 20%;
+  }
+
+  /* Chevron Rotation */
+  .nav-chevron {
+    transition: transform var(--nav-duration-fast) var(--nav-ease);
+  }
+
+  .nav-chevron[data-state="open"] {
+    transform: rotate(180deg);
+  }
+
+  /* Interactive Elements Hover Transition */
+  .nav-interactive {
+    transition: background-color var(--nav-duration-fast) ease-out,
+      box-shadow var(--nav-duration-fast) ease-out,
+      border-color var(--nav-duration-fast) ease-out,
+      transform var(--nav-duration-fast) ease-out;
+  }
+
+  /* Skeleton Loading Shimmer (Animates ONLY opacity - GPU accelerated, zero layout shift) */
+  .nav-skeleton {
+    animation: nav-shimmer 1.5s ease-in-out infinite;
+    will-change: opacity;
+  }
+}
+
+.mobile-accordion-inner {
+  overflow: hidden;
+}
+
+/* ─── Reduced Motion Fallback (Instant Appearance, Zero Delay) ───────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-transition,
+  .nav-dropdown-enter,
+  .nav-dropdown-exit,
+  .mobile-menu-enter,
+  .mobile-menu-exit,
+  .mobile-accordion-content,
+  .hamburger-line,
+  .nav-link-indicator::after,
+  .nav-chevron,
+  .nav-interactive {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .mobile-accordion-content[data-state="open"] {
+    grid-template-rows: 1fr !important;
+  }
+
+  .hamburger-active .hamburger-line-top {
+    stroke-dasharray: 75 160 !important;
+    stroke-dashoffset: -64 !important;
+  }
+
+  .hamburger-active .hamburger-line-mid {
+    opacity: 0 !important;
+  }
+
+  .hamburger-active .hamburger-line-bot {
+    stroke-dasharray: 75 85 !important;
+    stroke-dashoffset: -64 !important;
+  }
+
+  .nav-chevron[data-state="open"] {
+    transform: rotate(180deg) !important;
+  }
+
+  .nav-skeleton {
+    animation: none !important;
+    opacity: 0.6 !important;
+  }
+}
